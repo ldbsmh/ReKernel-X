@@ -8,32 +8,26 @@
 ## 许可
 此项目正在使用 [GPL 许可证](LICENSE), 如果需要对此项目进行修改或二次分发，请同样保持开源。
 
-## 下载内核
-在 [Re:Kernel已适配机型列表](https://github.com/Sakion-Team/Re-Kernel/tree/main/Supports) 中寻找你设备的内核并下载
+## 下载
+从 [GitHub Releases](https://github.com/myflavor/Re-Kernel/releases) 下载最新版本。
 
-### 警告
-请确保你对 设备变砖 有所了解 如果你不会救砖 请谨慎使用方法一及方法三！
+## 特殊准备
+你的设备需要通过 Magisk (v20.4+) 获取 Root 权限，内核版本需要 >= 5.10。
 
-使用方法一时 请确保你身边有电脑 或你的Magisk/KernelSU可以使用救砖功能 否则可能会无法开机！
+### 方法一: Magisk 模块（推荐）
+通过 Magisk 刷入 Re:Kernel 模块，开机后自动挂载。
 
-使用方法三时 请确保你身边有电脑 否则可能会无法开机！
+### 方法二: 手动挂载
+从 Magisk 模块中提取 `rekernel.ko`，放入 `/data/`，然后执行：
+```sh
+insmod rekernel.ko
+```
+> 重启后失效。建议先用此方法验证兼容性，再刷入 Magisk 模块。
 
-### 特殊准备
-如果你需要使用Re:Kernel的话 你需要一台已经被Root的设备 目前有三种方法可以安装Re:Kernel到你的设备当中
-
-#### 方法一: 推荐: Magisk模块(内核版本大于等于5.10)
-刷入Re:Kernel模块到你的设备 这样Re:Kernel将会在每次开机后自动挂载
-
-#### 方法二: 手动挂载(内核版本大于等于5.10)
-从Re:Kernel模块中提取re-kernel.ko，然后将它放入根目录下的data文件夹 并使用`insmod re-kernel.ko`命令挂载内核模块（重启后失效 也就是说每次开机后都得挂载一遍） 建议使用方法一前 使用此方法确保内核模块不会导致你的设备出现问题！
-
-#### 方法三: 刷写内核(仅内核版本小于等于5.4)
-从 [Re:Kernel已适配机型列表](https://github.com/Sakion-Team/Re-Kernel/tree/main/Supports) 中寻找你设备的内核 并将手机进入fastboot模式 然后使用`fastboot flash boot <path>`命令或使用其他内核刷写器将内核刷入你的手机
-
-## 为墓碑接入Re:Kernel
-Re:Kernel内核开放了一个Netlink服务器 允许所有墓碑开发者将其接入自己的墓碑当中 详情请前往仓库的 [Develop](https://github.com/Sakion-Team/Re-Kernel/tree/main/Develop) 文件夹中查看
+## 为墓碑接入 Re:Kernel
+Re:Kernel 通过 Generic Netlink 对外开放接口，详情请查看 [Develop](Develop) 文件夹。
 
 ## Q / A
-Q: 这个模块会泄露Root吗？
+Q: 这个模块会泄露 Root 吗？
 
-A: 不会，内核模块是无法被检测到的
+A: 不会，内核模块是无法被检测到的。
