@@ -12,6 +12,11 @@ on:
         required: false
         default: '20260313'
         type: string
+      version:
+        description: 'Re:Kernel version'
+        required: false
+        default: 'snapshot'
+        type: string
 
 jobs:
   build-rekernel-ko:
@@ -42,6 +47,7 @@ jobs:
             M=/opt/ddk/src/$KMI/drivers/android \
             CONFIG_REKERNEL=m \
             CC="clang" \
+            REKERNEL_VERSION="${{ inputs.version }}" \
             modules
 
           echo "=== Build completed ==="
