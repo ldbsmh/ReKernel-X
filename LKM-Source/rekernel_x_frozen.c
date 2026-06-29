@@ -5,7 +5,7 @@
  * File name: rekernel_x_frozen.c
  * Description: task frozen-state predicate, version-compatible across the
  *              supported kernel range. Used by the binder/signal/kprobe hooks.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

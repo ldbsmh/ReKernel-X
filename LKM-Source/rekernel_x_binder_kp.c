@@ -6,7 +6,7 @@
  * Description: ReKernel-X binder hooks via kprobe — resolves internal binder
  *              symbols via kallsyms and intercepts binder_proc_transaction to
  *              drop outdated async transactions for frozen tasks.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

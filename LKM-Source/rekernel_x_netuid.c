@@ -5,7 +5,7 @@
  * File name: rekernel_x_netuid.c
  * Description: network-monitor uid hashmap. Uids are added/removed from
  *              userspace via genl and queried by the netfilter hook.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

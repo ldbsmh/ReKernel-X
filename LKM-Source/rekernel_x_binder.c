@@ -5,7 +5,7 @@
  * File name: rekernel_x_binder.c
  * Description: ReKernel-X binder trace hooks — sync/async transactions,
  *              replies, and async-buffer-full detection for frozen tasks.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

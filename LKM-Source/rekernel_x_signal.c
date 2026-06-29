@@ -4,7 +4,7 @@
  *
  * File name: rekernel_x_signal.c
  * Description: ReKernel-X signal trace hook — fatal signals sent to frozen tasks.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

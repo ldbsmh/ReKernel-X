@@ -5,7 +5,7 @@
  * File name: rekernel_x_main.c
  * Description: ReKernel-X module entry — init/exit glue wiring the genl
  *              transport and the binder/signal/netfilter/kprobe hooks.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

@@ -5,7 +5,7 @@
  * File name: rekernel_x_netfilter.c
  * Description: ReKernel-X netfilter hook — measures inbound TCP payload for
  *              monitored user-app uids (IPv4/IPv6).
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>

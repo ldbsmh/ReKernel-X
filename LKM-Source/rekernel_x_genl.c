@@ -5,7 +5,7 @@
  * File name: rekernel_x_genl.c
  * Description: ReKernel-X generic netlink transport — family registration,
  *              event serialisation (NLA) and multicast to userspace.
- * Author: nep_timeline@outlook.com
+ * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
  */
 #include <linux/printk.h>
 #include <linux/module.h>
