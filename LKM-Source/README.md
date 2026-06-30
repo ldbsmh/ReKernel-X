@@ -43,8 +43,8 @@ The module version is defined in `rekernel_x.h`:
 
 ```c
 #ifndef REKERNEL_X_VERSION
-#define REKERNEL_X_VERSION "snapshot"
+#define REKERNEL_X_VERSION "dev"
 #endif
 ```
 
-Pass `REKERNEL_X_VERSION` as a make variable to override the default `snapshot` value. The version is printed in `dmesg` on module load.
+Pass `REKERNEL_X_VERSION` as a make variable to override the default `dev` value. The version is printed in `dmesg` on module load.

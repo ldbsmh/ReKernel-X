@@ -7,7 +7,7 @@
 struct task_struct;
 
 #ifndef REKERNEL_X_VERSION
-#define REKERNEL_X_VERSION "snapshot"
+#define REKERNEL_X_VERSION "dev"
 #endif
 
 #define CLEAN_UP_ASYNC_BINDER
