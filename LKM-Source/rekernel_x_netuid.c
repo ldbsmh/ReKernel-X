@@ -1,12 +1,9 @@
 /*
- * Copyright (c) Sakion Team. All rights reserved.
- * Copyright (c) myflavor <admin@myflv.cn>.
- *
- * File name: rekernel_x_netuid.c
- * Description: network-monitor uid hashmap. Uids are added/removed from
- *              userspace via genl and queried by the netfilter hook.
- * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
+ * Copyright (c) 2026 myflavor <admin@myflv.cn>. All rights reserved.
+ * Based on Re-Kernel project by nep_timeline@outlook.com.
+ * File: rekernel_x_netuid.c — Network monitor UID hashmap management.
  */
+
 #include "rekernel_x_log.h"
 #include "rekernel_x.h"
 #include <linux/printk.h>

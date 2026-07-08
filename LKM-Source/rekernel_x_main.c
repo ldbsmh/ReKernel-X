@@ -1,12 +1,9 @@
 /*
- * Copyright (c) Sakion Team. All rights reserved.
- * Copyright (c) myflavor <admin@myflv.cn>.
- *
- * File name: rekernel_x_main.c
- * Description: ReKernel-X module entry — init/exit glue wiring the genl
- *              transport and the binder/signal/netfilter/kprobe hooks.
- * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
+ * Copyright (c) 2026 myflavor <admin@myflv.cn>. All rights reserved.
+ * Based on Re-Kernel project by nep_timeline@outlook.com.
+ * File: rekernel_x_main.c — Module entry (init/exit) & hooks wiring.
  */
+
 #include "rekernel_x_log.h"
 #include "rekernel_x.h"
 #include <linux/printk.h>
@@ -15,29 +12,33 @@
 
 static int __init start_rekernel(void)
 {
-	rekernel_x_info_log("starting...\n");
-	rekernel_x_debug_log("Debug mode is enabled!\n");
-	rekernel_x_info_log("Version %s |  by myflavor, Sakion Team\n", REKERNEL_X_VERSION);
+	rekernel_x_log_info("starting...\n");
+	rekernel_x_log_debug("Debug mode is enabled!\n");
+	rekernel_x_log_info("Version %s |  by myflavor, Sakion Team\n", REKERNEL_X_VERSION);
 
-	if (register_genl() != LINE_SUCCESS) {
-		rekernel_x_err_log("%s: Failed to register genl family!\n", __func__);
+	if (register_genl() != LINE_SUCCESS)
+	{
+		rekernel_x_log_err("%s: Failed to register genl family!\n", __func__);
 		return LINE_ERROR;
 	}
 
-	rekernel_x_info_log("start hooking!\n");
+	rekernel_x_log_info("start hooking!\n");
 
-	if (register_binder() != LINE_SUCCESS) {
-		rekernel_x_err_log("%s: Failed to hook binder!\n", __func__);
+	if (register_binder() != LINE_SUCCESS)
+	{
+		rekernel_x_log_err("%s: Failed to hook binder!\n", __func__);
 		goto err;
 	}
 
-	if (register_signal() != LINE_SUCCESS) {
-		rekernel_x_err_log("%s: Failed to hook signal!\n", __func__);
+	if (register_signal() != LINE_SUCCESS)
+	{
+		rekernel_x_log_err("%s: Failed to hook signal!\n", __func__);
 		goto err;
 	}
 
-	if (register_netfilter() != LINE_SUCCESS) {
-		rekernel_x_err_log("%s: Failed to hook netfilter!\n", __func__);
+	if (register_netfilter() != LINE_SUCCESS)
+	{
+		rekernel_x_log_err("%s: Failed to hook netfilter!\n", __func__);
 		goto err;
 	}
 
@@ -45,7 +46,7 @@ static int __init start_rekernel(void)
 	register_binder_kp();
 #endif
 
-	rekernel_x_info_log("hooked!\n");
+	rekernel_x_log_info("hooked!\n");
 	return LINE_SUCCESS;
 
 err:
@@ -59,7 +60,7 @@ err:
 
 static void __exit exit_rekernel(void)
 {
-	rekernel_x_info_log("closing...\n");
+	rekernel_x_log_info("closing...\n");
 	unregister_binder_kp();
 	unregister_netfilter();
 	unregister_signal();

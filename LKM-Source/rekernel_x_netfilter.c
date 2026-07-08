@@ -1,12 +1,9 @@
 /*
- * Copyright (c) Sakion Team. All rights reserved.
- * Copyright (c) myflavor <admin@myflv.cn>.
- *
- * File name: rekernel_x_netfilter.c
- * Description: ReKernel-X netfilter hook — measures inbound TCP payload for
- *              monitored user-app uids (IPv4/IPv6).
- * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
+ * Copyright (c) 2026 myflavor <admin@myflv.cn>. All rights reserved.
+ * Based on Re-Kernel project by nep_timeline@outlook.com.
+ * File: rekernel_x_netfilter.c — Netfilter hooks & traffic metrics per UID.
  */
+
 #include "rekernel_x_log.h"
 #include "rekernel_x.h"
 #include <linux/printk.h>
@@ -141,7 +138,7 @@ static unsigned int rekernel_x_pkg_ipv4_ipv6_in(void *priv, struct sk_buff *skb,
 		return NF_ACCEPT;
 	}
 
-	rekernel_x_debug_log("Receive net data! target=%d\n", uid);
+	rekernel_x_log_debug("Receive net data! target=%d\n", uid);
 	if (rekernel_x_netlink_ready()) {
 		struct rekernel_x_event event = {
 			.type = REKERNEL_X_EVT_NETWORK,
@@ -209,7 +206,7 @@ int register_netfilter(void)
 	for_each_net(net) {
 		rc = nf_register_net_hooks(net, rekernel_x_nf_ops, ARRAY_SIZE(rekernel_x_nf_ops));
 		if (rc != LINE_SUCCESS) {
-			rekernel_x_err_log("register netfilter hooks failed, rc=%d\n", rc);
+			rekernel_x_log_err("register netfilter hooks failed, rc=%d\n", rc);
 			break;
 		}
 	}

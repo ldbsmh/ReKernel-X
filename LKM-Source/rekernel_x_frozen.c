@@ -1,12 +1,9 @@
 /*
- * Copyright (c) Sakion Team. All rights reserved.
- * Copyright (c) myflavor <admin@myflv.cn>.
- *
- * File name: rekernel_x_frozen.c
- * Description: task frozen-state predicate, version-compatible across the
- *              supported kernel range. Used by the binder/signal/kprobe hooks.
- * Author: nep_timeline@outlook.com, myflavor <admin@myflv.cn>
+ * Copyright (c) 2026 myflavor <admin@myflv.cn>. All rights reserved.
+ * Based on Re-Kernel project by nep_timeline@outlook.com.
+ * File: rekernel_x_frozen.c — Kernel-version compatible frozen state predicate.
  */
+
 #include "rekernel_x_log.h"
 #include "rekernel_x.h"
 #include <linux/printk.h>
