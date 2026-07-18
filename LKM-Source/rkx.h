@@ -10,8 +10,6 @@ struct task_struct;
 #define RKX_VERSION "dev"
 #endif
 
-#define CLEAN_UP_ASYNC_BINDER
-
 #define MIN_USERAPP_UID (10000)
 #define MAX_SYSTEM_UID (2000)
 #define SYSTEM_APP_UID (1000)
