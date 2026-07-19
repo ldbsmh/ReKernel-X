@@ -22,6 +22,7 @@ jobs:
   build-rekernel_x-ko:
     name: Build rekernel_x.ko for ${{ inputs.kmi }}-${{ inputs.ddk_release }}
     runs-on: ubuntu-latest
+
     container:
       image: ghcr.io/ylarod/ddk:${{ inputs.kmi }}-${{ inputs.ddk_release }}
       options: --privileged
@@ -31,34 +32,142 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build rekernel_x.ko
+        shell: bash
         run: |
+          set -euo pipefail
 
-          KMI=${{ inputs.kmi }}
+          KMI="${{ inputs.kmi }}"
+          SOURCE_DIR="/opt/ddk/src/$KMI/drivers/rekernel_x"
+          KERNEL_DIR="/opt/ddk/kdir/$KMI"
+          MODULE_PATH="$SOURCE_DIR/rekernel_x.ko"
+          OUTPUT_DIR="/github/workspace/out"
+          OUTPUT_NAME="rekernel_x-${{ inputs.kmi }}-${{ inputs.ddk_release }}.ko"
+          OUTPUT_PATH="$OUTPUT_DIR/$OUTPUT_NAME"
 
-          echo "=== Building rekernel_x.ko for KMI: $KMI ==="
+          echo "=== Build configuration ==="
+          echo "KMI:         $KMI"
+          echo "DDK release: ${{ inputs.ddk_release }}"
+          echo "RKX version: ${{ inputs.version }}"
+          echo "Kernel dir:  $KERNEL_DIR"
+          echo "Source dir:  $SOURCE_DIR"
+          echo "Output:      $OUTPUT_PATH"
 
-          # Source 
-          cp -r ./LKM-Source /opt/ddk/src/$KMI/drivers/rekernel_x
+          echo "=== Preparing source directory ==="
 
-          # Build
-          cd /opt/ddk/src/$KMI
-          make -C /opt/ddk/kdir/$KMI \
-            M=/opt/ddk/src/$KMI/drivers/rekernel_x \
+          # Remove a possible old build/source directory first. This prevents
+          # cp from creating drivers/rekernel_x/LKM-Source on repeated builds.
+          rm -rf "$SOURCE_DIR"
+          mkdir -p "$(dirname "$SOURCE_DIR")"
+
+          cp -r ./LKM-Source "$SOURCE_DIR"
+
+          echo "=== Source files ==="
+          find "$SOURCE_DIR" -maxdepth 1 -type f -printf '%f\n' | sort
+
+          echo "=== Module Makefile ==="
+          cat "$SOURCE_DIR/Makefile"
+
+          echo "=== Cleaning stale module build files ==="
+
+          find "$SOURCE_DIR" -maxdepth 1 -type f \
+            \( -name '*.o' \
+            -o -name '*.ko' \
+            -o -name '*.mod' \
+            -o -name '*.mod.c' \
+            -o -name '*.mod.o' \
+            -o -name '*.cmd' \
+            -o -name 'modules.order' \
+            -o -name 'Module.symvers' \) \
+            -delete
+
+          echo "=== Building rekernel_x.ko ==="
+
+          cd "/opt/ddk/src/$KMI"
+
+          make -C "$KERNEL_DIR" \
+            M="$SOURCE_DIR" \
             CC="clang" \
+            KCFLAGS="-fno-stack-protector" \
+            EXTRA_CFLAGS="-fno-stack-protector" \
             RKX_VERSION="${{ inputs.version }}" \
+            V=1 \
             modules
 
           echo "=== Build completed ==="
 
-          # Artifact
-          mkdir -p /github/workspace/out
-          OUTPUT_NAME="rekernel_x-${{ inputs.kmi }}-${{ inputs.ddk_release }}.ko"
-          cp /opt/ddk/src/$KMI/drivers/rekernel_x/rekernel_x.ko "/github/workspace/out/$OUTPUT_NAME"
-          llvm-strip -d "/github/workspace/out/$OUTPUT_NAME"
-          ls -la "/github/workspace/out/$OUTPUT_NAME"
+          if [[ ! -f "$MODULE_PATH" ]]; then
+            echo "ERROR: Module output was not created:"
+            echo "  $MODULE_PATH"
+            exit 1
+          fi
+
+          echo "=== Built module ==="
+          ls -lh "$MODULE_PATH"
+
+          echo "=== Undefined module symbols before strip ==="
+          llvm-nm -u "$MODULE_PATH" || true
+
+          echo "=== Checking stack protector symbols ==="
+
+          if llvm-nm -u "$MODULE_PATH" |
+            grep -Eq '(^|[[:space:]])(__stack_chk_guard|__stack_chk_fail)$'; then
+            echo "ERROR: rekernel_x.ko still references stack protector symbols:"
+            llvm-nm -u "$MODULE_PATH" |
+              grep -E '__stack_chk_guard|__stack_chk_fail' || true
+
+            echo
+            echo "Objects referencing stack protector symbols:"
+
+            while IFS= read -r -d '' object_file; do
+              if llvm-nm -u "$object_file" 2>/dev/null |
+                grep -Eq '__stack_chk_guard|__stack_chk_fail'; then
+                echo "--- $object_file"
+                llvm-nm -u "$object_file" |
+                  grep -E '__stack_chk_guard|__stack_chk_fail' || true
+              fi
+            done < <(find "$SOURCE_DIR" -type f -name '*.o' -print0)
+
+            echo
+            echo "The resulting module would probably fail to load with:"
+            echo "  Unknown symbol __stack_chk_guard"
+            exit 1
+          fi
+
+          echo "=== OK: no unresolved stack protector symbols found ==="
+
+          echo "=== Preparing artifact ==="
+
+          mkdir -p "$OUTPUT_DIR"
+          rm -f "$OUTPUT_PATH"
+
+          cp "$MODULE_PATH" "$OUTPUT_PATH"
+          llvm-strip -d "$OUTPUT_PATH"
+
+          if [[ ! -s "$OUTPUT_PATH" ]]; then
+            echo "ERROR: Artifact is missing or empty:"
+            echo "  $OUTPUT_PATH"
+            exit 1
+          fi
+
+          echo "=== Checking final artifact ==="
+
+          if llvm-nm -u "$OUTPUT_PATH" |
+            grep -Eq '(^|[[:space:]])(__stack_chk_guard|__stack_chk_fail)$'; then
+            echo "ERROR: Final artifact references stack protector symbols:"
+            llvm-nm -u "$OUTPUT_PATH" |
+              grep -E '__stack_chk_guard|__stack_chk_fail' || true
+            exit 1
+          fi
+
+          echo "=== Final artifact ==="
+          ls -lh "$OUTPUT_PATH"
+
+          echo "=== Build successful ==="
+          echo "Artifact: $OUTPUT_PATH"
 
       - name: Upload rekernel_x.ko artifact
         uses: actions/upload-artifact@v7
         with:
           name: rekernel_x-${{ inputs.kmi }}-${{ inputs.ddk_release }}.ko
           path: /github/workspace/out/rekernel_x-${{ inputs.kmi }}-${{ inputs.ddk_release }}.ko
+          if-no-files-found: error
