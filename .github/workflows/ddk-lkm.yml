@@ -37,24 +37,50 @@ jobs:
 
           echo "=== Building rekernel_x.ko for KMI: $KMI ==="
 
-          # Source 
+          # Source
           cp -r ./LKM-Source /opt/ddk/src/$KMI/drivers/rekernel_x
+
+          echo "=== Final rekernel_x Makefile ==="
+          cat /opt/ddk/src/$KMI/drivers/rekernel_x/Makefile
+
+          echo "=== LKM-Source files ==="
+          find ./LKM-Source -maxdepth 3 -type f | sort
 
           # Build
           cd /opt/ddk/src/$KMI
           make -C /opt/ddk/kdir/$KMI \
             M=/opt/ddk/src/$KMI/drivers/rekernel_x \
             CC="clang" \
+            KCFLAGS="-fno-stack-protector" \
+            EXTRA_CFLAGS="-fno-stack-protector" \
             RKX_VERSION="${{ inputs.version }}" \
+            V=1 \
             modules
 
           echo "=== Build completed ==="
+
+          echo "=== Check unresolved symbols before strip ==="
+          llvm-nm -u /opt/ddk/src/$KMI/drivers/rekernel_x/rekernel_x.ko || true
+
+          echo "=== Check stack protector symbols ==="
+          if llvm-nm -u /opt/ddk/src/$KMI/drivers/rekernel_x/rekernel_x.ko | grep -E "__stack_chk_guard|__stack_chk_fail"; then
+            echo "ERROR: rekernel_x.ko still references stack protector symbols"
+            echo "This may cause insmod failure:"
+            echo "  Unknown symbol __stack_chk_guard"
+            exit 1
+          fi
+
+          echo "=== OK: no stack protector symbols found ==="
 
           # Artifact
           mkdir -p /github/workspace/out
           OUTPUT_NAME="rekernel_x-${{ inputs.kmi }}-${{ inputs.ddk_release }}.ko"
           cp /opt/ddk/src/$KMI/drivers/rekernel_x/rekernel_x.ko "/github/workspace/out/$OUTPUT_NAME"
           llvm-strip -d "/github/workspace/out/$OUTPUT_NAME"
+
+          echo "=== Check artifact after strip ==="
+          llvm-nm -u "/github/workspace/out/$OUTPUT_NAME" || true
+
           ls -la "/github/workspace/out/$OUTPUT_NAME"
 
       - name: Upload rekernel_x.ko artifact
